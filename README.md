@@ -2,7 +2,7 @@
 
 A containerized weather data collection and processing pipeline using Apache Airflow, PostgreSQL, and the WeatherStack API. This project automatically fetches weather data for Leipzig, Germany and stores it in a PostgreSQL database for analysis and monitoring.
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────────┐
@@ -20,7 +20,7 @@ A containerized weather data collection and processing pipeline using Apache Air
                        └──────────────────┘
 ```
 
-## 🚀 Features
+## Features
 
 - **Automated Weather Data Collection**: Fetches current weather data from WeatherStack API
 - **Comprehensive Data Storage**: Stores weather conditions, air quality, astronomical data
@@ -29,13 +29,13 @@ A containerized weather data collection and processing pipeline using Apache Air
 - **Web Interface**: PgAdmin for database management and Airflow for pipeline monitoring
 - **Error Handling**: Robust error handling and logging throughout the pipeline
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Docker and Docker Compose installed
 - WeatherStack API key (free tier available at [weatherstack.com](https://weatherstack.com))
 - At least 2GB of available RAM for containers
 
-## 🛠️ Project Structure
+## Project Structure
 
 ```
 weather-pipeline/
@@ -104,7 +104,7 @@ docker-compose up --build
 docker-compose up --build -d
 ```
 
-## 🌐 Access Points
+## Access Points
 
 Once the containers are running:
 
@@ -113,7 +113,7 @@ Once the containers are running:
   - Email: `admin@admin.com`
   - Password: `root`
 
-## 📊 Database Schema
+## Database Schema
 
 The weather data is stored in the `weather_data` table with the following key columns:
 
@@ -140,7 +140,7 @@ The weather data is stored in the `weather_data` table with the following key co
 - `air_quality_so2`, `air_quality_pm2_5`, `air_quality_pm10`
 - `us_epa_index`, `gb_defra_index`
 
-## 🔍 Usage Examples
+## Usage Examples
 
 ### Running the Weather Data Collector Manually
 
@@ -188,7 +188,7 @@ WHERE air_quality_pm2_5 IS NOT NULL
 ORDER BY localtime DESC;
 ```
 
-## 🛡️ Error Handling
+## Error Handling
 
 The pipeline includes comprehensive error handling:
 
@@ -197,7 +197,7 @@ The pipeline includes comprehensive error handling:
 - **Data Validation**: Validation of API responses before database insertion
 - **Logging**: Detailed logging for troubleshooting
 
-## 📈 Monitoring and Maintenance
+## Monitoring and Maintenance
 
 ### Logs Location
 - **Airflow Logs**: `./logs/` directory
@@ -216,7 +216,7 @@ docker-compose logs pgdatabase
 docker exec -it airflow_container bash
 ```
 
-## 🔧 Development
+## Development
 
 ### Adding New DAGs
 1. Place DAG files in the `./dags/` directory
@@ -229,7 +229,7 @@ docker exec -it airflow_container bash
 ### Database Migrations
 The application automatically creates the required table structure on first run.
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -258,7 +258,7 @@ docker exec -it airflow_container ping pgdatabase
 sudo chown -R 50000:50000 dags logs plugins
 ```
 
-## 📝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -266,11 +266,11 @@ sudo chown -R 50000:50000 dags logs plugins
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [WeatherStack](https://weatherstack.com) for the weather API
 - [Apache Airflow](https://airflow.apache.org) for workflow orchestration
