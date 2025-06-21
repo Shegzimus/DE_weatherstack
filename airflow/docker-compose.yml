@@ -1,16 +1,25 @@
+version: '3.8'
+
 services:
+  # Weather database (PostgreSQL)
   pgdatabase:
     image: postgres:13
+    container_name: weather_postgres
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=weather_db
     volumes:
-      - "./weather_postgres_data:/var/lib/postgresql/data:rw"
+      - "./weather_postgres_data:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
+    networks:
+      - airflow-network
+
+  # PGAdmin for database management
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin_container
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=root
@@ -18,29 +27,49 @@ services:
       - "8080:80"
     depends_on:
       - pgdatabase
-    
+    networks:
+      - airflow-network
 
+  # Airflow metadata database (separate PostgreSQL instance)
   airflow_db:
     image: postgres:13
+    container_name: airflow_postgres
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow_db
     volumes:
-      - "./airflow_postgres_data:/var/lib/postgresql/data:rw"
+      - "./airflow_postgres_data:/var/lib/postgresql/data"
     ports:
       - "5433:5432"
-  af:
+    networks:
+      - airflow-network
+
+  # Airflow webserver and scheduler
+  airflow:
+    build: .
     container_name: airflow_container
     ports:
       - "8000:${AIRFLOW_PORT}"
     environment:
-      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_EXECUTOR}
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: ${AIRFLOW_CONN}
-      AIRFLOW__WEBSERVER__WORKERS: ${AIRFLOW_WEBSERVER_WORKERS}
-      AIRFLOW__WEBSERVER__WEB_SERVER_PORT: ${AIRFLOW_PORT}
+      - AIRFLOW__CORE__EXECUTOR=${AIRFLOW_EXECUTOR}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_CONN}
+      - AIRFLOW__WEBSERVER__WORKERS=${AIRFLOW_WEBSERVER_WORKERS}
+      - AIRFLOW__WEBSERVER__WEB_SERVER_PORT=${AIRFLOW_PORT}
+      - AIRFLOW_HOME=${AIRFLOW_HOME}
+      - AIRFLOW_UID=${AIRFLOW_UID}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
     volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
       - ./entrypoint.sh:/entrypoint.sh
     depends_on:
       - airflow_db
-    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+      - pgdatabase
+    networks:
+      - airflow-network
+
+networks:
+  airflow-network:
+    driver: bridge
