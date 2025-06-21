@@ -1,0 +1,46 @@
+services:
+  pgdatabase:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=weather_db
+    volumes:
+      - "./weather_postgres_data:/var/lib/postgresql/data:rw"
+    ports:
+      - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - "8080:80"
+    depends_on:
+      - pgdatabase
+    
+
+  airflow_db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow_db
+    volumes:
+      - "./airflow_postgres_data:/var/lib/postgresql/data:rw"
+    ports:
+      - "5433:5432"
+  af:
+    container_name: airflow_container
+    ports:
+      - "8000:${AIRFLOW_PORT}"
+    environment:
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: ${AIRFLOW_CONN}
+      AIRFLOW__WEBSERVER__WORKERS: ${AIRFLOW_WEBSERVER_WORKERS}
+      AIRFLOW__WEBSERVER__WEB_SERVER_PORT: ${AIRFLOW_PORT}
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh
+    depends_on:
+      - airflow_db
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
