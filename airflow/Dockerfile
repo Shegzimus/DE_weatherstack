@@ -15,19 +15,28 @@ USER root
 
 # Copy requirements file and install Python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy entrypoint script and set permissions
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Switch back to Airflow user for security
+USER $AIRFLOW_UID
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+USER root
 # Set appropriate permissions for Airflow directories
 RUN chown -R $AIRFLOW_UID:$AIRFLOW_UID /opt/airflow
 
-# Switch back to Airflow user for security
-USER $AIRFLOW_UID
 
 # Set entrypoint and default command
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["airflow", "scheduler"]
+
+USER airflow
