@@ -4,15 +4,9 @@
 sleep 10
 
 # Initialize and create user if not already created
-airflow db init
+airflow db migrate
 
-airflow users create \
-  --username admin \
-  --firstname Segun \
-  --lastname Admin \
-  --role Admin \
-  --email admin@example.com \
-  --password admin
+airflow users sync
 
 # Start Airflow webserver
-exec airflow webserver
+exec airflow api-server
